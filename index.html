@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI 리사이클링</title>
+
+<style>
+:root {
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #6ee7b7;
+  --accent: #8b5cf6;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --gradient-1: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-bg: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+  --glow: 0 0 30px rgba(16, 185, 129, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--gradient-bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.location-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+}
+
+.location-selector:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.location-selector select {
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  font-weight: 600;
+}
+
+.points-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--gradient-1);
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: var(--glow);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.points-display:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.page { display: none; animation: fadeIn 0.5s ease; }
+.page.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 홈 히어로 */
+.hero {
+  text-align: center;
+  padding: 4.5rem 2rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 28px;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -5%;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero h1 { 
+  font-size: 2.8rem; 
+  margin-bottom: 1rem; 
+  font-weight: 800;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
+}
+.hero p { 
+  font-size: 1.2rem; 
+  color: var(--text-secondary); 
+  margin-bottom: 2rem; 
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-button {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 0.6rem;
+  padding: 1.2rem 2.5rem; 
+  background: var(--gradient-1);
+  color: white;
+  border: none; 
+  border-radius: 14px; 
+  font-size: 1.1rem; 
+  font-weight: 700;
+  cursor: pointer; 
+  transition: all 0.3s;
+  box-shadow: var(--glow);
+  position: relative;
+  z-index: 1;
+}
+.cta-button:hover { 
+  transform: translateY(-3px); 
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+}
+
+/* 통계 */
+.stats-section {
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem; 
+  margin: 2rem 0;
+}
+.stat-card {
+  background: var(--card);
+  padding: 2.5rem; 
+  border-radius: 20px; 
+  text-align: center;
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-1);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card:hover { 
+  transform: translateY(-8px); 
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+.stat-number { 
+  font-size: 3rem; 
+  font-weight: 800; 
+  color: var(--primary);
+  margin-bottom: 0.5rem; 
+}
+.stat-label { 
+  color: var(--text-secondary); 
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* 정보 카드 */
+.features { 
+  display: grid; 
+  grid-template-columns: 1fr; 
+  gap: 1.8rem; 
+  margin-top: 2rem; 
+}
+
+.feature-card {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1.8rem;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  padding: 2.2rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-card .feature-icon{
+  width: 110px; 
+  height: 110px; 
+  border-radius: 22px;
+  display: grid; 
+  place-items: center; 
+  font-size: 3.5rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+}
+.feature-card h3{
+  font-size: 1.6rem; 
+  margin-bottom: 0.6rem;
+  color: var(--text);
+  font-weight: 800;
+}
+.feature-card > div > p{
+  color: var(--text-secondary); 
+  margin-bottom: 1.2rem;
+  font-size: 1rem;
+}
+
+/* 리스트 */
+.info-list{
+  list-style: none; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.9rem;
+}
+.info-list li{
+  display: flex; 
+  align-items: center; 
+  gap: 1rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: 14px; 
+  padding: 1rem 1.3rem;
+  transition: all 0.3s;
+}
+
+.info-list li:hover {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: var(--primary);
+  transform: translateX(8px);
+}
+
+.info-list .em{
+  font-size: 1.6rem; 
+  display: inline-grid; 
+  place-items: center; 
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.info-list li p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.info-list li strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* AI 분석 페이지 */
+.analyzer-container { max-width: 900px; margin: 0 auto; }
+.upload-section {
+  background: var(--card);
+  border-radius: 28px; 
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  border: 2px solid var(--border);
+}
+.upload-section h2 { 
+  font-size: 2.2rem; 
+  margin-bottom: 0.8rem; 
+  color: var(--primary);
+  font-weight: 800;
+}
+.upload-section > p { 
+  color: var(--text-secondary); 
+  margin-bottom: 1.8rem;
+  font-size: 1.05rem;
+}
+
+.upload-zone {
+  border: 3px dashed var(--primary); 
+  border-radius: 20px; 
+  padding: 3.5rem 2rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  transition: all 0.3s; 
+  cursor: pointer; 
+}
+.upload-zone:hover, .upload-zone.dragover { 
+  border-color: var(--primary-dark); 
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  transform: scale(1.02); 
+}
+
+.upload-icon { 
+  font-size: 4.5rem; 
+  margin-bottom: 1.2rem; 
+}
+.upload-zone label {
+  display: inline-block; 
+  padding: 1.1rem 2.2rem;
+  background: var(--gradient-1);
+  color: white; 
+  border-radius: 14px; 
+  font-weight: 700; 
+  cursor: pointer;
+  box-shadow: var(--glow);
+  transition: all 0.3s;
+}
+
+.upload-zone label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+}
+
+.upload-zone input { display: none; }
+
+#preview {
+  max-width: 100%; 
+  max-height: 450px; 
+  border-radius: 20px; 
+  margin: 1.8rem auto 0;
+  display: none; 
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--border);
+}
+
+#loadingMsg {
+  display: none; 
+  margin-top: 1.8rem; 
+  padding: 1.3rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 14px; 
+  color: #92400e; 
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.result-container {
+  display: none; 
+  margin-top: 1.8rem;
+  background: var(--card);
+  border-radius: 28px; 
+  padding: 2.2rem;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--border);
+}
+
+.result-header {
+  display: flex; 
+  align-items: center; 
+  gap: 1.2rem; 
+  padding: 1.8rem;
+  background: var(--gradient-1);
+  border-radius: 18px; 
+  color: white; 
+  margin-bottom: 1.8rem;
+  box-shadow: var(--glow);
+}
+.result-icon { font-size: 2.8rem; }
+.result-header h3 { font-size: 1.8rem; font-weight: 800; }
+
+.probabilities {
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 0.9rem; 
+  margin-bottom: 1.8rem;
+}
+.prob-badge {
+  padding: 0.8rem 1.4rem; 
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 12px;
+  font-size: 1rem; 
+  font-weight: 700; 
+  color: var(--text);
+  border: 2px solid var(--primary);
+  transition: all 0.3s;
+}
+
+.prob-badge:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.guide-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-left: 5px solid var(--success);
+  padding: 1.8rem; 
+  border-radius: 16px; 
+  margin-top: 1.2rem;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+}
+.guide-box h4 { 
+  color: var(--success); 
+  margin-bottom: 0.9rem; 
+  font-size: 1.3rem; 
+  font-weight: 800; 
+}
+
+.guide-box p {
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* 리워드 */
+.rewards-container { max-width: 900px; margin: 0 auto; }
+.rewards-header {
+  background: var(--card);
+  padding: 3rem; 
+  border-radius: 28px; 
+  text-align: center; 
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg); 
+  border: 2px solid var(--border);
+}
+.rewards-header h2 { 
+  font-size: 2.5rem; 
+  color: var(--primary);
+  font-weight: 800; 
+  margin-bottom: 0.5rem;
+}
+.total-points { 
+  font-size: 4rem; 
+  font-weight: 800; 
+  color: var(--primary);
+  margin: 1rem 0; 
+}
+
+.rewards-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+  gap: 1.8rem; 
+}
+.reward-item {
+  background: var(--card);
+  padding: 2.2rem; 
+  border-radius: 24px; 
+  box-shadow: var(--shadow);
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+}
+.reward-item:hover { 
+  transform: translateY(-8px); 
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+.reward-item .reward-icon { 
+  font-size: 3rem; 
+  margin-bottom: 1.2rem; 
+}
+.reward-item h4 { 
+  font-size: 1.3rem; 
+  margin-bottom: 0.6rem;
+  color: var(--text);
+  font-weight: 700;
+}
+.reward-item .points-needed { 
+  font-size: 1.8rem; 
+  font-weight: 800; 
+  color: var(--primary);
+  margin: 0.6rem 0; 
+}
+.reward-item p { 
+  color: var(--text-secondary); 
+  font-size: 0.95rem; 
+  line-height: 1.6;
+}
+.redeem-button { 
+  width: 100%; 
+  margin-top: 1.2rem; 
+  padding: 1rem; 
+  background: var(--gradient-1);
+  color: #fff; 
+  border: none; 
+  border-radius: 12px; 
+  font-weight: 800; 
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: var(--glow);
+  font-size: 1rem;
+}
+
+.redeem-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+}
+
+.redeem-button:disabled{
+  background: var(--border);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 1rem; }
+  main { padding: 1.5rem 1rem; }
+  .header-right { gap: 0.8rem; }
+  .points-display { padding: 0.6rem 1rem; font-size: 0.9rem; }
+  .feature-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .feature-card .feature-icon {
+    margin: 0 auto;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-content">
+    <div class="logo" onclick="goToHome()">
+      <span>♻️</span>
+      <span>AI 리사이클링</span>
+    </div>
+    <div class="header-right">
+      <div class="location-selector">
+        <span>📍</span>
+        <select id="regionSelect">
+          <option value="">지역 선택</option>
+          <option value="서울">서울특별시</option>
+          <option value="부산">부산광역시</option>
+          <option value="대구">대구광역시</option>
+          <option value="광주">광주광역시</option>
+          <option value="인천">인천광역시</option>
+          <option value="대전">대전광역시</option>
+          <option value="울산">울산광역시</option>
+          <option value="세종">세종특별자치시</option>
+          <option value="경기">경기도</option>
+          <option value="제주">제주특별자치도</option>
+        </select>
+      </div>
+      <div class="points-display" onclick="goToRewards()">
+        <span>🌟</span>
+        <span id="userPoints">0</span>
+        <span>P</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 홈 -->
+  <div id="home" class="page active">
+    <div class="hero">
+      <h1>🌍 AI가 알려주는 올바른 분리수거</h1>
+      <p>사진 한 장으로 쉽게 확인하고, 세션 동안 포인트도 받아보세요!</p>
+      <button class="cta-button" onclick="goToAnalyzer()">
+        <span>📸</span><span>지금 시작하기</span>
+      </button>
+    </div>
+
+    <!-- 통계 -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-number">75%</div>
+        <div class="stat-label">재활용 가능 쓰레기가<br>일반쓰레기로 버려짐</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">30분</div>
+        <div class="stat-label">올바른 분리수거로<br>절약되는 시간</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">85kg</div>
+        <div class="stat-label">연간 1인당<br>재활용 가능 쓰레기량</div>
+      </div>
+    </div>
+
+    <!-- 정보 카드 -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">❌</div>
+        <div>
+          <h3>자주 틀리는 분리수거</h3>
+          <p>많은 사람들이 헷갈려하는 품목을 확인해보세요</p>
+          <ul class="info-list">
+            <li><span class="em">🍕</span><p><strong>피자박스</strong> — 기름 묻은 부분은 일반쓰레기, 깨끗한 부분만 종이류</p></li>
+            <li><span class="em">🧴</span><p><strong>펌프형 용기</strong> — 펌프는 일반쓰레기, 본체는 플라스틱</p></li>
+            <li><span class="em">☕</span><p><strong>종이컵</strong> — 종이팩류로 분리</p></li>
+            <li><span class="em">🥤</span><p><strong>빨대</strong> — 사이즈가 작아 재활용 불가, 일반쓰레기</p></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">💡</div>
+        <div>
+          <h3>분리수거 꿀팁</h3>
+          <p>효율적인 분리수거를 위한 실용적인 팁들</p>
+          <ul class="info-list">
+            <li><span class="em">🏷️</span><p><strong>라벨 제거</strong> — 따뜻한 물에 담가두면 접착제가 풀려 쉽게 떨어져요</p></li>
+            <li><span class="em">📦</span><p><strong>압축하기</strong> — 페트·캔은 압축하면 수거/운반이 효율적</p></li>
+            <li><span class="em">💦</span><p><strong>헹구기</strong> — 한 번만 헹궈도 악취·이물질 감소로 재활용률 ↑</p></li>
+            <li><span class="em">🕗</span><p><strong>배출 시간</strong> — 지역 규정 시간에 맞춰 저녁에 내놓기</p></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🌱</div>
+        <div>
+          <h3>환경 영향</h3>
+          <p>올바른 분리수거가 만드는 긍정적 변화</p>
+          <ul class="info-list">
+            <li><span class="em">🌳</span><p><strong>나무 절약</strong> — 종이 1톤 재활용 = 나무 17그루 보호</p></li>
+            <li><span class="em">⚡</span><p><strong>에너지 절감</strong> — 플라스틱 재활용 시 원유 사용량 대폭 감소</p></li>
+            <li><span class="em">💧</span><p><strong>물 보존</strong> — 재활용 공정은 신규 생산 대비 물 사용 ↓</p></li>
+            <li><span class="em">🌍</span><p><strong>탄소 감축</strong> — 1kg 재활용당 CO₂ 약 2.5kg 감축</p></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 분석 -->
+  <div id="analyzer" class="page">
+    <div class="analyzer-container">
+      <div class="upload-section">
+        <h2>분리수거 품목 분석</h2>
+        <p>분리수거가 필요한 물건을 촬영하거나 사진을 업로드해주세요</p>
+        
+        <div class="location-selector" style="display: inline-flex; margin-bottom: 1.5rem;">
+          <span>📍</span>
+          <select id="analyzerRegionSelect">
+            <option value="">지역 선택</option>
+            <option value="서울">서울특별시</option>
+            <option value="부산">부산광역시</option>
+            <option value="대구">대구광역시</option>
+            <option value="광주">광주광역시</option>
+            <option value="인천">인천광역시</option>
+            <option value="대전">대전광역시</option>
+            <option value="울산">울산광역시</option>
+            <option value="세종">세종특별자치시</option>
+            <option value="경기">경기도</option>
+            <option value="제주">제주특별자치도</option>
+          </select>
+        </div>
+        
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">📷</div>
+          <input id="fileInput" type="file" accept="image/*" />
+          <label for="fileInput">사진 선택 또는 촬영</label>
+          <p style="margin-top: 0.8rem; color: var(--text-secondary); font-size: 0.95rem; font-weight: 600;">
+            또는 이미지를 드래그 앤 드롭
+          </p>
+        </div>
+
+        <img id="preview" alt="미리보기"/>
+        
+        <div id="loadingMsg">🔄 AI가 이미지를 분석하고 있습니다...</div>
+      </div>
+
+      <div id="result" class="result-container">
+        <div class="result-header">
+          <span class="result-icon">✅</span>
+          <div>
+            <h3 id="topLabel">분석 결과</h3>
+            <p id="confidence" style="opacity: 0.95; font-size: 1rem; font-weight: 600;"></p>
+          </div>
+        </div>
+        
+        <div>
+          <h4 style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: 1rem; font-weight: 800;">
+            예측 확률
+          </h4>
+          <div id="topProbs" class="probabilities"></div>
+        </div>
+
+        <div id="guide" class="guide-box"></div>
+
+        <button class="cta-button" style="margin-top: 1.5rem; width: 100%;" onclick="resetAnalyzer()">
+          ← 다시 분석하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 리워드 -->
+  <div id="rewards" class="page">
+    <div class="rewards-container">
+      <div class="rewards-header">
+        <h2>🎁 나의 리워드</h2>
+        <p style="color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 0.8rem;">
+          세션 동안 모은 포인트로 리워드를 교환해보세요
+        </p>
+        <div class="total-points" id="totalPoints">0</div>
+        <p style="color: var(--text-secondary); font-weight: 600; font-size: 1rem;">보유 포인트</p>
+      </div>
+
+      <div class="rewards-grid">
+        <div class="reward-item">
+          <div class="reward-icon">🌳</div>
+          <h4>나무 심기 기부</h4>
+          <div class="points-needed">100P</div>
+          <p>당신의 이름으로 나무 1그루를 심습니다</p>
+          <button class="redeem-button" onclick="redeemReward(100, '나무 심기')">교환하기</button>
+        </div>
+
+        <div class="reward-item">
+          <div class="reward-icon">☕</div>
+          <h4>카페 음료 쿠폰</h4>
+          <div class="points-needed">200P</div>
+          <p>제휴 카페 아메리카노 무료 쿠폰</p>
+          <button class="redeem-button" onclick="redeemReward(200, '카페 쿠폰')">교환하기</button>
+        </div>
+
+        <div class="reward-item">
+          <div class="reward-icon">🎫</div>
+          <h4>영화 관람권</h4>
+          <div class="points-needed">300P</div>
+          <p>영화 관람권</p>
+          <button class="redeem-button" onclick="redeemReward(300, '영화 관람권')">교환하기</button>
+        </div>
+
+        <div class="reward-item">
+          <div class="reward-icon">🛍️</div>
+          <h4>편의점 상품권</h4>
+          <div class="points-needed">500P</div>
+          <p>편의점 5천원 상품권</p>
+          <button class="redeem-button" onclick="redeemReward(500, '편의점 상품권')">교환하기</button>
+        </div>
+      </div>
+
+      <button class="cta-button" onclick="goToHome()" style="display: block; margin: 2rem auto 0;">
+        ← 홈으로 돌아가기
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- TensorFlow.js -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.16.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+<script>
+// ===================== 포인트 (세션 한정) =====================
+function updatePointUIs() {
+  const header = document.getElementById('userPoints');
+  const total = document.getElementById('totalPoints');
+  if (header) header.textContent = userPoints;
+  if (total)  total.textContent  = userPoints;
+}
+let userPoints = parseInt(sessionStorage.getItem('userPoints') || '0', 10);
+updatePointUIs();
+
+function addPoints(p){ userPoints += p; sessionStorage.setItem('userPoints', String(userPoints)); updatePointUIs(); }
+
+function redeemReward(cost, name){
+  if (userPoints >= cost){
+    if (confirm(`${name}을(를) ${cost}P로 교환하시겠습니까?`)){
+      userPoints -= cost; sessionStorage.setItem('userPoints', String(userPoints));
+      updatePointUIs(); alert(`🎉 ${name} 교환 완료! 남은 포인트: ${userPoints}P`); updateRedeemButtons();
+    }
+  } else { alert(`포인트가 부족합니다!\n필요: ${cost}P / 보유: ${userPoints}P`); }
+}
+function updateRedeemButtons(){
+  document.querySelectorAll('.redeem-button').forEach(btn=>{
+    const m = btn.getAttribute('onclick')?.match(/redeemReward\((\d+),/);
+    const cost = m ? parseInt(m[1],10) : 0;
+    btn.disabled = userPoints < cost;
+  });
+}
+
+// 세션 종료/이탈 시 리셋
+window.addEventListener('pagehide', (e)=>{ if(!e.persisted){ sessionStorage.removeItem('userPoints'); } });
+// 뒤로가기 bfcache 복원 시도 포함 리셋
+window.addEventListener('pageshow', (e)=>{ if(e.persisted){ sessionStorage.removeItem('userPoints'); userPoints=0; updatePointUIs(); updateRedeemButtons(); } });
+
+// ===================== 페이지 전환 =====================
+function goToAnalyzer(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('analyzer').classList.add('active');
+  window.scrollTo(0,0);
+  const headerRegion = document.getElementById('regionSelect').value;
+  const analyzerRegion = document.getElementById('analyzerRegionSelect');
+  if (headerRegion) analyzerRegion.value = headerRegion;
+}
+function goToHome(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+  window.scrollTo(0,0);
+}
+function goToRewards(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('rewards').classList.add('active');
+  updatePointUIs(); updateRedeemButtons(); window.scrollTo(0,0);
+}
+
+// 지역 셀렉트 동기화
+document.getElementById('regionSelect').addEventListener('change', function(){ document.getElementById('analyzerRegionSelect').value = this.value; });
+document.getElementById('analyzerRegionSelect').addEventListener('change', function(){ document.getElementById('regionSelect').value = this.value; });
+
+// ===================== 지역 가이드 =====================
+const REGION_GUIDES = {
+  "서울": {"플라스틱":"내용물을 깨끗이 비우고 헹군 후 라벨을 제거하여 압착해 배출합니다.","plastic":"내용물을 깨끗이 비우고 헹군 후 라벨을 제거하여 압착해 배출합니다.","종이":"테이프, 철핀 등을 제거하고 접어서 배출합니다.","paper":"테이프, 철핀 등을 제거하고 접어서 배출합니다.","유리":"병뚜껑을 제거하고 헹군 후 색상별로 분리하여 배출합니다.","glass":"병뚜껑을 제거하고 헹군 후 색상별로 분리하여 배출합니다.","금속":"캔은 헹군 후 압착하여 배출하고, 스프레이는 구멍을 뚫어 배출합니다.","metal":"캔은 헹군 후 압착하여 배출하고, 스프레이는 구멍을 뚫어 배출합니다.","비닐":"이물질을 제거하고 깨끗이 세척하여 건조 후 배출합니다.","vinyl":"이물질을 제거하고 깨끗이 세척하여 건조 후 배출합니다.","trash":"재활용이 불가능한 품목은 일반쓰레기로 배출합니다."},
+  "부산": {"플라스틱":"깨끗이 세척한 후 라벨 제거 후 배출. PVC는 일반쓰레기.","plastic":"깨끗이 세척한 후 라벨 제거 후 배출. PVC는 일반쓰레기.","종이":"물기가 없는 깨끗한 종이만 배출.","paper":"물기가 없는 깨끗한 종이만 배출.","유리":"뚜껑과 라벨을 제거하고 헹구어 배출.","glass":"뚜껑과 라벨을 제거하고 헹구어 배출.","금속":"캔 내부를 헹구고 라벨 제거 후 압착.","metal":"캔 내부를 헹구고 라벨 제거 후 압착.","비닐":"투명/유색 분리 배출.","vinyl":"투명/유색 분리 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "대구": {"플라스틱":"이물질 제거 후 압착 배출.","plastic":"이물질 제거 후 압착 배출.","종이팩":"내용물을 비우고 헹군 뒤 말려서 배출.","paper":"내용물을 비우고 헹군 뒤 말려서 배출.","유리":"깨진 유리는 신문지에 싸서 일반쓰레기.","glass":"깨진 유리는 신문지에 싸서 일반쓰레기.","금속":"캔 안쪽을 깨끗이 세척하여 배출.","metal":"캔 안쪽을 깨끗이 세척하여 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "광주": {"플라스틱":"PET와 일반 플라스틱 구분 배출.","plastic":"PET와 일반 플라스틱 구분 배출.","종이":"코팅된 종이는 일반쓰레기.","paper":"코팅된 종이는 일반쓰레기.","금속":"스프레이 캔은 완전히 비우고 구멍 후 배출.","metal":"스프레이 캔은 완전히 비우고 구멍 후 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "인천": {"플라스틱":"내용물 제거 후 라벨을 떼고 배출.","plastic":"내용물 제거 후 라벨을 떼고 배출.","종이":"박스는 테이프 제거 후 펼쳐서 배출.","paper":"박스는 테이프 제거 후 펼쳐서 배출.","유리":"병뚜껑 분리 후 헹구어 배출.","glass":"병뚜껑 분리 후 헹구어 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "대전": {"플라스틱":"깨끗이 세척 후 압착 배출.","plastic":"깨끗이 세척 후 압착 배출.","종이":"이물질 없는 깨끗한 종이만 배출.","paper":"이물질 없는 깨끗한 종이만 배출.","금속":"캔 내부를 물로 헹군 후 배출.","metal":"캔 내부를 물로 헹군 후 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "울산": {"플라스틱":"라벨 제거 후 압착 배출.","plastic":"라벨 제거 후 압착 배출.","종이":"젖은 종이는 일반쓰레기.","paper":"젖은 종이는 일반쓰레기.","유리":"깨진 유리병은 신문지로 감싸 배출.","glass":"깨진 유리병은 신문지로 감싸 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "세종": {"플라스틱":"이물질 제거 후 세척 배출.","plastic":"이물질 제거 후 세척 배출.","종이":"종이팩은 따로 모아 배출.","paper":"종이팩은 따로 모아 배출.","금속":"캔류는 압착 배출.","metal":"캔류는 압착 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "경기": {"플라스틱":"세척 후 라벨 분리, 압착 배출.","plastic":"세척 후 라벨 분리, 압착 배출.","종이":"테이프·스프링 등 제거 후 배출.","paper":"테이프·스프링 등 제거 후 배출.","유리":"병뚜껑 분리 후 헹굼 배출.","glass":"병뚜껑 분리 후 헹굼 배출.","금속":"캔을 헹군 후 압착 배출.","metal":"캔을 헹군 후 압착 배출.","trash":"재활용 불가 품목은 일반쓰레기."},
+  "제주": {"플라스틱":"세척 후 건조 배출.","plastic":"세척 후 건조 배출.","비닐":"이물질 완전 제거·건조 배출.","vinyl":"이물질 완전 제거·건조 배출.","종이":"물기 없는 상태로 배출.","paper":"물기 없는 상태로 배출.","음식물":"물기를 최대 제거 후 전용봉투 배출.","food":"물기를 최대 제거 후 전용봉투 배출.","trash":"재활용 불가 품목은 일반쓰레기."}
+};
+const DEFAULT_GUIDES = {
+  "플라스틱":"내용물을 비우고 헹군 뒤 라벨 제거, 압착 배출",
+  "plastic":"내용물을 비우고 헹군 뒤 라벨 제거, 압착 배출",
+  "종이":"이물질 제거 후 접어서 배출",
+  "paper":"이물질 제거 후 접어서 배출",
+  "유리":"병뚜껑 분리, 내용물 비우고 헹굼",
+  "glass":"병뚜껑 분리, 내용물 비우고 헹굼",
+  "금속":"캔은 비우고 헹군 뒤 압착",
+  "metal":"캔은 비우고 헹군 뒤 압착",
+  "비닐":"이물질 제거 후 세척·건조",
+  "vinyl":"이물질 제거 후 세척·건조",
+  "음식물":"물기 최대 제거 후 전용봉투",
+  "food":"물기 최대 제거 후 전용봉투",
+  "일반쓰레기":"재활용 불가 품목은 일반쓰레기",
+  "trash":"재활용 불가 품목은 일반쓰레기"
+};
+
+// ===================== AI 모델 =====================
+const TM_URL = "https://teachablemachine.withgoogle.com/models/ZDrUQugEV/";
+let model;
+
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const resultBox = document.getElementById('result');
+const topLabel = document.getElementById('topLabel');
+const confidence = document.getElementById('confidence');
+const probsBox = document.getElementById('topProbs');
+const guideBox = document.getElementById('guide');
+const loadingMsg = document.getElementById('loadingMsg');
+const uploadZone = document.getElementById('uploadZone');
+
+function prepareForNewAnalysis(){
+  loadingMsg.style.display = 'block';
+  resultBox.style.display = 'none';
+  topLabel.textContent = '분석 중…';
+  confidence.textContent = '';
+  probsBox.innerHTML = '';
+  guideBox.innerHTML = '';
+}
+
+fileInput.addEventListener('click', ()=>{ fileInput.value=''; });
+fileInput.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
+uploadZone.addEventListener('dragover', (e)=>{ e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', ()=> uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e)=>{
+  e.preventDefault(); uploadZone.classList.remove('dragover');
+  const files = e.dataTransfer.files; if(files.length>0) handleFile(files[0]);
+});
+
+async function loadModel(){
+  try{
+    loadingMsg.style.display='block';
+    model = await tmImage.load(TM_URL+'model.json', TM_URL+'metadata.json');
+  }catch(e){ alert('모델 로딩 실패: '+e); }
+  finally{ loadingMsg.style.display='none'; }
+}
+
+async function handleFile(file){
+  prepareForNewAnalysis();
+  const url = URL.createObjectURL(file);
+  preview.src = url; preview.style.display='block';
+  try{
+    if(preview.decode) await preview.decode();
+    else await new Promise(r=>{ preview.onload=r; preview.onerror=r; });
+  }catch(_){}
+  if(!model) await loadModel();
+  await predict(preview);
+  URL.revokeObjectURL(url);
+}
+
+async function predict(img){
+  if(!model) return;
+  loadingMsg.style.display='block'; resultBox.style.display='none';
+
+  const preds = await model.predict(img,false);
+  preds.sort((a,b)=>b.probability-a.probability);
+  const top3 = preds.slice(0,3);
+
+  loadingMsg.style.display='none'; resultBox.style.display='block';
+
+  const mainClass = top3[0].className;
+  const mainProb = (top3[0].probability*100).toFixed(1);
+  topLabel.textContent = mainClass;
+  confidence.textContent = `신뢰도: ${mainProb}%`;
+
+  probsBox.innerHTML = top3.map(p=>`<span class="prob-badge">${p.className}: ${(p.probability*100).toFixed(1)}%</span>`).join('');
+
+  const region = document.getElementById('regionSelect').value;
+  let guideText = "";
+  if(region && REGION_GUIDES[region] && REGION_GUIDES[region][mainClass]) guideText = REGION_GUIDES[region][mainClass];
+  else if(DEFAULT_GUIDES[mainClass]) guideText = DEFAULT_GUIDES[mainClass];
+  else guideText = "해당 품목의 분리배출 기준을 확인해주세요.";
+
+  const regionText = region ? ` (${region})` : "";
+  guideBox.innerHTML = `<h4>🗑️ 분리배출 방법${regionText}</h4><p>${guideText}</p>`;
+
+  // 세션 포인트 +10
+  addPoints(10);
+}
+
+function resetAnalyzer(){
+  preview.style.display='none';
+  resultBox.style.display='none';
+  fileInput.value='';
+}
+</script>
+</body>
+</html>
